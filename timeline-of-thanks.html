@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline of Thanks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .intro {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .intro h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .intro p {
+            font-size: 1.5rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+        }
+
+        .scroll-hint {
+            font-size: 1rem;
+            color: #718096;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .timeline-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .timeline-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-date {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .pixel-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .pixel {
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            position: relative;
+        }
+
+        .pixel.appear {
+            opacity: 1;
+            animation: pixelAppear 0.5s ease forwards;
+        }
+
+        @keyframes pixelAppear {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.3) rotate(180deg);
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .pixel:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 20px currentColor;
+            z-index: 10;
+        }
+
+        .pixel-tooltip {
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .pixel:hover .pixel-tooltip {
+            opacity: 1;
+        }
+
+        .pixel-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .finale-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .finale-title {
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: #e2e8f0;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .finale-title.visible {
+            opacity: 1;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+        }
+
+        #pixel-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .farewell-message {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #a0aec0;
+            opacity: 0;
+            transition: opacity 1s ease 2s;
+        }
+
+        .farewell-message.visible {
+            opacity: 1;
+        }
+
+        .color-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .color-gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .color-gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .color-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .color-gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .color-gradient-6 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="intro">
+            <h1>Timeline of Thanks</h1>
+            <p>A journey through the moments we've shared</p>
+            <div class="scroll-hint">↓ Scroll to begin ↓</div>
+        </section>
+
+        <section class="timeline-section">
+            <div class="timeline-header">
+                <h2>Every Pixel, Every Memory</h2>
+            </div>
+
+            <div class="timeline" id="timeline">
+                <!-- Timeline items will be generated by JavaScript -->
+            </div>
+        </section>
+
+        <section class="finale-section" id="finale">
+            <h2 class="finale-title" id="finale-title">Thank You</h2>
+            <div id="canvas-container">
+                <canvas id="pixel-canvas"></canvas>
+            </div>
+            <div class="farewell-message" id="farewell-message">
+                Every pixel represents a moment, a smile, a memory.<br>
+                Thank you for being part of this journey.
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Sample data - Replace with your actual coworker data
+        const timelineData = [
+            { month: 'January 2024', people: ['Alice Johnson', 'Bob Smith', 'Carol Williams', 'David Brown'] },
+            { month: 'February 2024', people: ['Emma Davis', 'Frank Miller', 'Grace Wilson', 'Henry Moore'] },
+            { month: 'March 2024', people: ['Iris Taylor', 'Jack Anderson', 'Kate Thomas', 'Liam Jackson'] },
+            { month: 'April 2024', people: ['Maya White', 'Noah Harris', 'Olivia Martin', 'Paul Thompson'] },
+            { month: 'May 2024', people: ['Quinn Garcia', 'Rachel Martinez', 'Sam Robinson', 'Tina Clark'] },
+            { month: 'June 2024', people: ['Uma Rodriguez', 'Victor Lewis', 'Wendy Lee', 'Xavier Walker'] },
+            { month: 'July 2024', people: ['Yara Hall', 'Zack Allen', 'Amy Young', 'Ben King'] },
+            { month: 'August 2024', people: ['Chloe Wright', 'Dan Lopez', 'Eva Hill', 'Felix Scott'] },
+            { month: 'September 2024', people: ['Gina Green', 'Hugo Adams', 'Ivy Baker', 'Jake Nelson'] },
+            { month: 'October 2024', people: ['Kelly Carter', 'Leo Mitchell', 'Mia Perez', 'Nick Roberts'] }
+        ];
+
+        const colorGradients = [
+            'color-gradient-1', 'color-gradient-2', 'color-gradient-3',
+            'color-gradient-4', 'color-gradient-5', 'color-gradient-6'
+        ];
+
+        let totalPixels = 0;
+        const allPixelData = [];
+
+        // Generate timeline
+        const timeline = document.getElementById('timeline');
+        timelineData.forEach((item, monthIndex) => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item';
+
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'timeline-date';
+            dateDiv.textContent = item.month;
+
+            const pixelContainer = document.createElement('div');
+            pixelContainer.className = 'pixel-container';
+
+            // Create pixels for each person (about 25 pixels per person to reach ~1000 total)
+            item.people.forEach((person, personIndex) => {
+                const pixelsPerPerson = 25;
+                for (let i = 0; i < pixelsPerPerson; i++) {
+                    const pixel = document.createElement('div');
+                    pixel.className = `pixel ${colorGradients[monthIndex % colorGradients.length]}`;
+
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'pixel-tooltip';
+                    tooltip.textContent = person;
+
+                    pixel.appendChild(tooltip);
+                    pixelContainer.appendChild(pixel);
+
+                    allPixelData.push({
+                        element: pixel,
+                        person: person,
+                        month: item.month,
+                        color: colorGradients[monthIndex % colorGradients.length]
+                    });
+
+                    totalPixels++;
+                }
+            });
+
+            timelineItem.appendChild(dateDiv);
+            timelineItem.appendChild(pixelContainer);
+            timeline.appendChild(timelineItem);
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+
+                    // Animate pixels
+                    const pixels = entry.target.querySelectorAll('.pixel');
+                    pixels.forEach((pixel, index) => {
+                        setTimeout(() => {
+                            pixel.classList.add('appear');
+                        }, index * 20);
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Finale animation
+        const finaleObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.getElementById('finale-title').classList.add('visible');
+                    setTimeout(() => {
+                        animateToSmileLogo();
+                    }, 1000);
+                    setTimeout(() => {
+                        document.getElementById('farewell-message').classList.add('visible');
+                    }, 4000);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        finaleObserver.observe(document.getElementById('finale'));
+
+        // Canvas animation for Amazon smile logo
+        function animateToSmileLogo() {
+            const canvas = document.getElementById('pixel-canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('canvas-container');
+
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const pixelSize = 6;
+            const gap = 2;
+
+            // Amazon smile logo coordinates (simplified arrow + smile)
+            const smilePixels = generateSmileLogo(centerX, centerY, pixelSize + gap);
+
+            // Create particles
+            const particles = [];
+            for (let i = 0; i < 1000; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    targetX: 0,
+                    targetY: 0,
+                    color: '#FF9900', // Amazon orange
+                    size: pixelSize,
+                    isLogo: false,
+                    name: allPixelData[i % allPixelData.length]?.person || 'Friend'
+                });
+            }
+
+            // Assign logo positions
+            smilePixels.forEach((pos, index) => {
+                if (particles[index]) {
+                    particles[index].targetX = pos.x;
+                    particles[index].targetY = pos.y;
+                    particles[index].isLogo = true;
+                }
+            });
+
+            // Rest become background
+            particles.forEach(p => {
+                if (!p.isLogo) {
+                    p.targetX = Math.random() * canvas.width;
+                    p.targetY = Math.random() * canvas.height;
+                    p.color = '#0a0e27';
+                }
+            });
+
+            let frame = 0;
+            const maxFrames = 120;
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    const progress = Math.min(frame / maxFrames, 1);
+                    const easeProgress = easeInOutCubic(progress);
+
+                    p.x += (p.targetX - p.x) * 0.05;
+                    p.y += (p.targetY - p.y) * 0.05;
+
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+                });
+
+                frame++;
+                if (frame < maxFrames * 2) {
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            animate();
+        }
+
+        function generateSmileLogo(centerX, centerY, spacing) {
+            const pixels = [];
+
+            // Amazon smile arrow (simplified)
+            // Arrow curve from left to right
+            for (let i = 0; i < 30; i++) {
+                const angle = (Math.PI / 6) + (i / 30) * (Math.PI * 0.7);
+                const radius = 100;
+                const x = centerX - 80 + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                pixels.push({ x, y });
+            }
+
+            // Arrow head
+            for (let i = 0; i < 10; i++) {
+                pixels.push({
+                    x: centerX + 60 + i * 3,
+                    y: centerY + 30 - i * 2
+                });
+                pixels.push({
+                    x: centerX + 60 + i * 3,
+                    y: centerY + 30 + i * 2
+                });
+            }
+
+            // Smile curve
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.PI + (i / 40) * Math.PI;
+                const radius = 60;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY - 20 + Math.sin(angle) * radius * 0.6;
+                pixels.push({ x, y });
+            }
+
+            return pixels;
+        }
+
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        console.log(`Total pixels generated: ${totalPixels}`);
+    </script>
+</body>
+</html>
