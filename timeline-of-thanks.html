@@ -3,179 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline of Thanks</title>
+    <title>Thank You, Amazonians</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0e27;
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #f5f5f7;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            min-height: 100vh;
+        /* Hero Section with Parallax */
+        .hero {
+            height: 200vh;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            overflow: hidden;
         }
 
-        .intro {
+        .hero-sticky {
+            position: sticky;
+            top: 0;
             height: 100vh;
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 2rem;
+            overflow: hidden;
         }
 
-        .intro h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 2rem;
+            transform: translateY(-50px);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            opacity: 0;
+            transform: translateY(60px);
+            animation: fadeUpIn 1.2s ease-out 0.3s forwards;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.7) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .intro p {
-            font-size: 1.5rem;
-            color: #a0aec0;
-            margin-bottom: 2rem;
-        }
-
-        .scroll-hint {
-            font-size: 1rem;
-            color: #718096;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .timeline-section {
-            padding: 4rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .timeline-header {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .timeline-header h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #e2e8f0;
-        }
-
-        .timeline {
-            position: relative;
-            padding: 2rem 0;
-        }
-
-        .timeline-item {
-            margin-bottom: 4rem;
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 400;
+            color: #86868b;
+            margin-top: 1rem;
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
+            transform: translateY(40px);
+            animation: fadeUpIn 1.2s ease-out 0.6s forwards;
         }
 
-        .timeline-item.visible {
+        /* Jeff Bezos Portrait with Parallax */
+        .portrait-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .portrait-wrapper {
+            position: relative;
+            width: min(700px, 90vw);
+            height: min(700px, 90vw);
+            opacity: 0;
+            animation: portraitFadeIn 2s ease-out 0.8s forwards;
+        }
+
+        .portrait {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: grayscale(100%) contrast(1.1);
+            opacity: 0.15;
+            transform: scale(1);
+            transition: transform 0.1s ease-out, opacity 0.5s ease;
+        }
+
+        .portrait-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(255,153,0,0.1) 0%, transparent 70%);
+            filter: blur(60px);
+            pointer-events: none;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1.5s forwards;
+        }
+
+        .scroll-indicator span {
+            display: block;
+            width: 24px;
+            height: 40px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .scroll-indicator span::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 8px;
+            background: #fff;
+            border-radius: 2px;
+            animation: scrollPulse 2s infinite;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+            position: relative;
+            background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+        }
+
+        .quote-container {
+            max-width: 1000px;
+            text-align: center;
+        }
+
+        .quote {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 300;
+            line-height: 1.4;
+            color: #f5f5f7;
+            opacity: 0;
+            transform: translateY(80px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quote.reveal {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .timeline-date {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .pixel-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 4px;
-            margin-bottom: 1rem;
-        }
-
-        .pixel {
-            width: 12px;
-            height: 12px;
-            background: #667eea;
-            border-radius: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .quote-author {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            color: #FF9900;
+            font-weight: 500;
             opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+        }
+
+        .quote-author.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Sticky Text Sections */
+        .sticky-section {
+            min-height: 300vh;
             position: relative;
         }
 
-        .pixel.appear {
-            opacity: 1;
-            animation: pixelAppear 0.5s ease forwards;
+        .sticky-content {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
-        @keyframes pixelAppear {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.3) rotate(180deg);
-            }
-            100% {
-                transform: scale(1) rotate(360deg);
-                opacity: 1;
-            }
+        .text-reveal {
+            font-size: clamp(2rem, 8vw, 6rem);
+            font-weight: 700;
+            text-align: center;
+            padding: 2rem;
+            max-width: 1200px;
+            line-height: 1.1;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .text-reveal.reveal {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .text-reveal .highlight {
+            color: #FF9900;
+        }
+
+        /* Timeline Section */
+        .timeline-section {
+            padding: 8rem 2rem;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 6rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .section-header h2.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: #86868b;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+        }
+
+        .section-header p.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .timeline-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            opacity: 0;
+            transform: translateY(60px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .timeline-card.reveal {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .timeline-card:hover {
+            border-color: rgba(255,153,0,0.3);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(255,153,0,0.1);
+        }
+
+        .card-date {
+            font-size: 0.9rem;
+            color: #FF9900;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .pixel-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 1.5rem;
+        }
+
+        .pixel {
+            width: 10px;
+            height: 10px;
+            background: #FF9900;
+            border-radius: 2px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .pixel.reveal {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .pixel:hover {
-            transform: scale(1.5);
-            box-shadow: 0 0 20px currentColor;
-            z-index: 10;
+            transform: scale(1.8);
+            box-shadow: 0 0 20px rgba(255,153,0,0.6);
         }
 
-        .pixel-tooltip {
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 100;
-        }
-
-        .pixel:hover .pixel-tooltip {
-            opacity: 1;
-        }
-
-        .pixel-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.9);
-        }
-
+        /* Finale Section */
         .finale-section {
             min-height: 100vh;
             display: flex;
@@ -183,27 +357,78 @@
             justify-content: center;
             align-items: center;
             padding: 4rem 2rem;
+            background: #000;
             position: relative;
+            overflow: hidden;
+        }
+
+        .finale-portrait {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 0;
+        }
+
+        .finale-portrait img {
+            width: min(800px, 100vw);
+            height: auto;
+            object-fit: contain;
+            filter: grayscale(100%);
+            opacity: 0.08;
+        }
+
+        .finale-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
         }
 
         .finale-title {
-            font-size: 3rem;
-            margin-bottom: 3rem;
-            text-align: center;
-            color: #e2e8f0;
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF9900 0%, #FFD700 50%, #FF9900 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             opacity: 0;
-            transition: opacity 1s ease;
+            transform: scale(0.8);
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .finale-title.visible {
+        .finale-title.reveal {
             opacity: 1;
+            transform: scale(1);
+        }
+
+        .finale-subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #86868b;
+            margin-top: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+        }
+
+        .finale-subtitle.reveal {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         #canvas-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 600px;
+            margin-top: 3rem;
+            width: min(800px, 90vw);
+            height: 300px;
+            opacity: 0;
+            transition: opacity 1s ease 1s;
+        }
+
+        #canvas-container.reveal {
+            opacity: 1;
         }
 
         #pixel-canvas {
@@ -211,168 +436,291 @@
             height: 100%;
         }
 
-        .farewell-message {
+        .finale-message {
             margin-top: 3rem;
-            text-align: center;
-            font-size: 1.5rem;
-            color: #a0aec0;
+            font-size: 1.25rem;
+            color: #f5f5f7;
+            max-width: 600px;
+            line-height: 1.8;
             opacity: 0;
-            transition: opacity 1s ease 2s;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 1.5s;
         }
 
-        .farewell-message.visible {
+        .finale-message.reveal {
             opacity: 1;
+            transform: translateY(0);
         }
 
-        .color-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .color-gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .color-gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .color-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-        .color-gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-        .color-gradient-6 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        /* Animations */
+        @keyframes fadeUpIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes portraitFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                transform: translateY(-30px);
+            }
+
+            .timeline {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <section class="intro">
-            <h1>Timeline of Thanks</h1>
-            <p>A journey through the moments we've shared</p>
-            <div class="scroll-hint">↓ Scroll to begin ↓</div>
-        </section>
-
-        <section class="timeline-section">
-            <div class="timeline-header">
-                <h2>Every Pixel, Every Memory</h2>
+    <!-- Hero Section with Parallax Portrait -->
+    <section class="hero">
+        <div class="hero-sticky">
+            <div class="portrait-container">
+                <div class="portrait-wrapper">
+                    <div class="portrait-glow"></div>
+                    <img src="bezos-portrait.svg"
+                         alt="Jeff Bezos Portrait"
+                         class="portrait"
+                         id="parallax-portrait">
+                </div>
             </div>
-
-            <div class="timeline" id="timeline">
-                <!-- Timeline items will be generated by JavaScript -->
+            <div class="hero-content">
+                <h1 class="hero-title">Thank You, Amazonians</h1>
+                <p class="hero-subtitle">A tribute to those who dreamed, built, and delivered</p>
             </div>
-        </section>
+            <div class="scroll-indicator">
+                <span></span>
+            </div>
+        </div>
+    </section>
 
-        <section class="finale-section" id="finale">
-            <h2 class="finale-title" id="finale-title">Thank You</h2>
+    <!-- Quote Section -->
+    <section class="quote-section">
+        <div class="quote-container">
+            <p class="quote" id="quote">
+                "We are what we repeatedly do. Excellence, then, is not an act, but a habit."
+            </p>
+            <p class="quote-author" id="quote-author">— Inspired by the spirit of Day One</p>
+        </div>
+    </section>
+
+    <!-- Sticky Text Reveal -->
+    <section class="sticky-section">
+        <div class="sticky-content">
+            <h2 class="text-reveal" id="text-reveal-1">
+                Every <span class="highlight">pixel</span> represents a moment of dedication
+            </h2>
+        </div>
+    </section>
+
+    <section class="sticky-section">
+        <div class="sticky-content">
+            <h2 class="text-reveal" id="text-reveal-2">
+                Every <span class="highlight">line of code</span> tells a story
+            </h2>
+        </div>
+    </section>
+
+    <section class="sticky-section">
+        <div class="sticky-content">
+            <h2 class="text-reveal" id="text-reveal-3">
+                Every <span class="highlight">Amazonian</span> made it possible
+            </h2>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="timeline-section">
+        <div class="section-header">
+            <h2 id="timeline-header">A Year of Gratitude</h2>
+            <p id="timeline-subheader">Each pixel represents a colleague, a friend, a moment</p>
+        </div>
+        <div class="timeline" id="timeline">
+            <!-- Cards will be generated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Finale Section -->
+    <section class="finale-section" id="finale">
+        <div class="finale-portrait">
+            <img src="bezos-portrait.svg" alt="Jeff Bezos Portrait">
+        </div>
+        <div class="finale-content">
+            <h1 class="finale-title" id="finale-title">Thank You</h1>
+            <p class="finale-subtitle" id="finale-subtitle">For making every day, Day One</p>
             <div id="canvas-container">
                 <canvas id="pixel-canvas"></canvas>
             </div>
-            <div class="farewell-message" id="farewell-message">
-                Every pixel represents a moment, a smile, a memory.<br>
-                Thank you for being part of this journey.
-            </div>
-        </section>
-    </div>
+            <p class="finale-message" id="finale-message">
+                Every pixel in this visualization represents the dedication, innovation,
+                and customer obsession that defines who we are. Thank you for being part
+                of this incredible journey.
+            </p>
+        </div>
+    </section>
 
     <script>
-        // Sample data - Replace with your actual coworker data
-        const timelineData = [
-            { month: 'January 2024', people: ['Alice Johnson', 'Bob Smith', 'Carol Williams', 'David Brown'] },
-            { month: 'February 2024', people: ['Emma Davis', 'Frank Miller', 'Grace Wilson', 'Henry Moore'] },
-            { month: 'March 2024', people: ['Iris Taylor', 'Jack Anderson', 'Kate Thomas', 'Liam Jackson'] },
-            { month: 'April 2024', people: ['Maya White', 'Noah Harris', 'Olivia Martin', 'Paul Thompson'] },
-            { month: 'May 2024', people: ['Quinn Garcia', 'Rachel Martinez', 'Sam Robinson', 'Tina Clark'] },
-            { month: 'June 2024', people: ['Uma Rodriguez', 'Victor Lewis', 'Wendy Lee', 'Xavier Walker'] },
-            { month: 'July 2024', people: ['Yara Hall', 'Zack Allen', 'Amy Young', 'Ben King'] },
-            { month: 'August 2024', people: ['Chloe Wright', 'Dan Lopez', 'Eva Hill', 'Felix Scott'] },
-            { month: 'September 2024', people: ['Gina Green', 'Hugo Adams', 'Ivy Baker', 'Jake Nelson'] },
-            { month: 'October 2024', people: ['Kelly Carter', 'Leo Mitchell', 'Mia Perez', 'Nick Roberts'] }
-        ];
+        // Parallax Effect for Portrait
+        const portrait = document.getElementById('parallax-portrait');
+        const heroSection = document.querySelector('.hero');
 
-        const colorGradients = [
-            'color-gradient-1', 'color-gradient-2', 'color-gradient-3',
-            'color-gradient-4', 'color-gradient-5', 'color-gradient-6'
-        ];
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroHeight = heroSection.offsetHeight;
 
-        let totalPixels = 0;
-        const allPixelData = [];
+            if (scrolled < heroHeight) {
+                const parallaxSpeed = 0.5;
+                const scale = 1 + (scrolled * 0.0003);
+                const opacity = Math.max(0.05, 0.15 - (scrolled * 0.0002));
 
-        // Generate timeline
-        const timeline = document.getElementById('timeline');
-        timelineData.forEach((item, monthIndex) => {
-            const timelineItem = document.createElement('div');
-            timelineItem.className = 'timeline-item';
-
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'timeline-date';
-            dateDiv.textContent = item.month;
-
-            const pixelContainer = document.createElement('div');
-            pixelContainer.className = 'pixel-container';
-
-            // Create pixels for each person (about 25 pixels per person to reach ~1000 total)
-            item.people.forEach((person, personIndex) => {
-                const pixelsPerPerson = 25;
-                for (let i = 0; i < pixelsPerPerson; i++) {
-                    const pixel = document.createElement('div');
-                    pixel.className = `pixel ${colorGradients[monthIndex % colorGradients.length]}`;
-
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'pixel-tooltip';
-                    tooltip.textContent = person;
-
-                    pixel.appendChild(tooltip);
-                    pixelContainer.appendChild(pixel);
-
-                    allPixelData.push({
-                        element: pixel,
-                        person: person,
-                        month: item.month,
-                        color: colorGradients[monthIndex % colorGradients.length]
-                    });
-
-                    totalPixels++;
+                if (portrait) {
+                    portrait.style.transform = `scale(${scale}) translateY(${scrolled * parallaxSpeed}px)`;
+                    portrait.style.opacity = opacity;
                 }
-            });
-
-            timelineItem.appendChild(dateDiv);
-            timelineItem.appendChild(pixelContainer);
-            timeline.appendChild(timelineItem);
+            }
         });
 
-        // Scroll animations
+        // Intersection Observer for reveal animations
         const observerOptions = {
-            threshold: 0.1,
+            threshold: 0.2,
             rootMargin: '0px 0px -100px 0px'
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-
-                    // Animate pixels
-                    const pixels = entry.target.querySelectorAll('.pixel');
-                    pixels.forEach((pixel, index) => {
-                        setTimeout(() => {
-                            pixel.classList.add('appear');
-                        }, index * 20);
-                    });
+                    entry.target.classList.add('reveal');
                 }
             });
         }, observerOptions);
 
-        document.querySelectorAll('.timeline-item').forEach(item => {
-            observer.observe(item);
+        // Observe elements for reveal
+        const revealElements = [
+            'quote', 'quote-author', 'text-reveal-1', 'text-reveal-2', 'text-reveal-3',
+            'timeline-header', 'timeline-subheader', 'finale-title', 'finale-subtitle',
+            'canvas-container', 'finale-message'
+        ];
+
+        revealElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                revealObserver.observe(element);
+            }
         });
 
-        // Finale animation
+        // Sticky text reveal based on scroll position
+        const stickySections = document.querySelectorAll('.sticky-section');
+
+        stickySections.forEach((section, index) => {
+            const textReveal = section.querySelector('.text-reveal');
+
+            const stickyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const rect = section.getBoundingClientRect();
+                        const sectionHeight = section.offsetHeight;
+                        const scrollProgress = Math.abs(rect.top) / (sectionHeight - window.innerHeight);
+
+                        if (scrollProgress > 0.1 && scrollProgress < 0.9) {
+                            textReveal.classList.add('reveal');
+                        }
+                    }
+                });
+            }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] });
+
+            stickyObserver.observe(section);
+        });
+
+        // Timeline Data
+        const timelineData = [
+            { month: 'Q1 2024', title: 'New Beginnings', names: ['Innovation', 'Customer Focus', 'Ownership', 'Bias for Action'] },
+            { month: 'Q2 2024', title: 'Growing Together', names: ['Invent & Simplify', 'Hire & Develop', 'Insist on Standards', 'Think Big'] },
+            { month: 'Q3 2024', title: 'Delivering Results', names: ['Frugality', 'Earn Trust', 'Dive Deep', 'Have Backbone'] },
+            { month: 'Q4 2024', title: 'Looking Forward', names: ['Deliver Results', 'Day One', 'Customer Obsession', 'Excellence'] }
+        ];
+
+        // Generate Timeline Cards
+        const timeline = document.getElementById('timeline');
+
+        timelineData.forEach((data, index) => {
+            const card = document.createElement('div');
+            card.className = 'timeline-card';
+            card.style.transitionDelay = `${index * 0.15}s`;
+
+            card.innerHTML = `
+                <div class="card-date">${data.month}</div>
+                <h3 class="card-title">${data.title}</h3>
+                <p style="color: #86868b; font-size: 0.95rem;">${data.names.join(' • ')}</p>
+                <div class="pixel-grid" id="pixel-grid-${index}"></div>
+            `;
+
+            timeline.appendChild(card);
+
+            // Add pixels to grid
+            const pixelGrid = card.querySelector('.pixel-grid');
+            for (let i = 0; i < 30; i++) {
+                const pixel = document.createElement('div');
+                pixel.className = 'pixel';
+                pixel.style.transitionDelay = `${(index * 0.15) + (i * 0.02)}s`;
+                pixelGrid.appendChild(pixel);
+            }
+
+            revealObserver.observe(card);
+        });
+
+        // Observe pixels within cards
+        document.querySelectorAll('.timeline-card').forEach(card => {
+            const cardObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const pixels = entry.target.querySelectorAll('.pixel');
+                        pixels.forEach(pixel => pixel.classList.add('reveal'));
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            cardObserver.observe(card);
+        });
+
+        // Finale Canvas Animation
+        const finaleSection = document.getElementById('finale');
+        let canvasAnimated = false;
+
         const finaleObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    document.getElementById('finale-title').classList.add('visible');
-                    setTimeout(() => {
-                        animateToSmileLogo();
-                    }, 1000);
-                    setTimeout(() => {
-                        document.getElementById('farewell-message').classList.add('visible');
-                    }, 4000);
+                if (entry.isIntersecting && !canvasAnimated) {
+                    canvasAnimated = true;
+                    setTimeout(animateSmileLogo, 1000);
                 }
             });
         }, { threshold: 0.3 });
 
-        finaleObserver.observe(document.getElementById('finale'));
+        finaleObserver.observe(finaleSection);
 
-        // Canvas animation for Amazon smile logo
-        function animateToSmileLogo() {
+        function animateSmileLogo() {
             const canvas = document.getElementById('pixel-canvas');
             const ctx = canvas.getContext('2d');
             const container = document.getElementById('canvas-container');
@@ -382,64 +730,64 @@
 
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const pixelSize = 6;
-            const gap = 2;
+            const pixelSize = 5;
 
-            // Amazon smile logo coordinates (simplified arrow + smile)
-            const smilePixels = generateSmileLogo(centerX, centerY, pixelSize + gap);
+            // Generate Amazon smile arrow
+            const smilePixels = [];
 
-            // Create particles
-            const particles = [];
-            for (let i = 0; i < 1000; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    targetX: 0,
-                    targetY: 0,
-                    color: '#FF9900', // Amazon orange
-                    size: pixelSize,
-                    isLogo: false,
-                    name: allPixelData[i % allPixelData.length]?.person || 'Friend'
+            // Main smile curve
+            for (let i = 0; i < 50; i++) {
+                const t = i / 49;
+                const x = centerX - 150 + t * 300;
+                const curve = Math.sin(t * Math.PI) * 40;
+                smilePixels.push({ x, y: centerY + 20 + curve });
+            }
+
+            // Arrow head
+            const arrowTip = { x: centerX + 150, y: centerY + 20 };
+            for (let i = 0; i < 15; i++) {
+                smilePixels.push({
+                    x: arrowTip.x - i * 4,
+                    y: arrowTip.y - i * 3
                 });
             }
 
-            // Assign logo positions
-            smilePixels.forEach((pos, index) => {
-                if (particles[index]) {
-                    particles[index].targetX = pos.x;
-                    particles[index].targetY = pos.y;
-                    particles[index].isLogo = true;
-                }
-            });
+            // Create particles
+            const particles = [];
+            const numParticles = 500;
 
-            // Rest become background
-            particles.forEach(p => {
-                if (!p.isLogo) {
-                    p.targetX = Math.random() * canvas.width;
-                    p.targetY = Math.random() * canvas.height;
-                    p.color = '#0a0e27';
-                }
-            });
-
-            let frame = 0;
-            const maxFrames = 120;
+            for (let i = 0; i < numParticles; i++) {
+                const isLogo = i < smilePixels.length;
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    targetX: isLogo ? smilePixels[i].x : Math.random() * canvas.width,
+                    targetY: isLogo ? smilePixels[i].y : Math.random() * canvas.height,
+                    color: isLogo ? '#FF9900' : 'rgba(255,153,0,0.1)',
+                    size: isLogo ? pixelSize : pixelSize * 0.5,
+                    speed: 0.03 + Math.random() * 0.02
+                });
+            }
 
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+                let allSettled = true;
                 particles.forEach(p => {
-                    const progress = Math.min(frame / maxFrames, 1);
-                    const easeProgress = easeInOutCubic(progress);
+                    p.x += (p.targetX - p.x) * p.speed;
+                    p.y += (p.targetY - p.y) * p.speed;
 
-                    p.x += (p.targetX - p.x) * 0.05;
-                    p.y += (p.targetY - p.y) * 0.05;
+                    if (Math.abs(p.targetX - p.x) > 1 || Math.abs(p.targetY - p.y) > 1) {
+                        allSettled = false;
+                    }
 
                     ctx.fillStyle = p.color;
-                    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+                    ctx.fill();
                 });
 
-                frame++;
-                if (frame < maxFrames * 2) {
+                if (!allSettled) {
                     requestAnimationFrame(animate);
                 }
             }
@@ -447,48 +795,21 @@
             animate();
         }
 
-        function generateSmileLogo(centerX, centerY, spacing) {
-            const pixels = [];
+        // Smooth scroll enhancement
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
 
-            // Amazon smile arrow (simplified)
-            // Arrow curve from left to right
-            for (let i = 0; i < 30; i++) {
-                const angle = (Math.PI / 6) + (i / 30) * (Math.PI * 0.7);
-                const radius = 100;
-                const x = centerX - 80 + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
-                pixels.push({ x, y });
-            }
-
-            // Arrow head
-            for (let i = 0; i < 10; i++) {
-                pixels.push({
-                    x: centerX + 60 + i * 3,
-                    y: centerY + 30 - i * 2
-                });
-                pixels.push({
-                    x: centerX + 60 + i * 3,
-                    y: centerY + 30 + i * 2
-                });
-            }
-
-            // Smile curve
-            for (let i = 0; i < 40; i++) {
-                const angle = Math.PI + (i / 40) * Math.PI;
-                const radius = 60;
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY - 20 + Math.sin(angle) * radius * 0.6;
-                pixels.push({ x, y });
-            }
-
-            return pixels;
-        }
-
-        function easeInOutCubic(t) {
-            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        }
-
-        console.log(`Total pixels generated: ${totalPixels}`);
+        console.log('Thank You, Amazonians - Every pixel, every moment, every memory.');
     </script>
 </body>
 </html>
